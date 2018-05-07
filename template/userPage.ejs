@@ -1,0 +1,188 @@
+<% layout('./layout/page') -%>
+<% block('title', "USER PAGE") -%>
+
+<% if (user) { %>
+    <p>ID:<%= user._id %></p>
+<% } %>
+<div class="form-horizontal login-form" name="buttonform">
+    <div class="form-group">
+        <div class="col-lg-offset-2 col-lg-10 wrapper" >
+            <button class="btn btn-primary" onclick="checkName()" data-loading-text="Sending...">CHECK UNIQUENESS OF A NAME</button>
+        </div>
+    </div>
+</div>
+<form class="form-horizontal login-form" name="loginform" id="form">
+    <% if (user) { %>
+    <div class="form-group">
+        <label for="input-username" class="col-lg-2 control-label">New Name</label>
+
+        <div class="col-lg-10">
+            <input id="newUsername" name="username"   type="text" class="form-control" id="input-username" value=<%= user.username %>>
+        </div>
+    </div>
+    <% } %>
+
+    <div class="form-group">
+        <label for="input-password" class="col-lg-2 control-label">Old Password</label>
+
+        <div class="col-lg-10">
+            <input id="oldPassword" name="oldPassword"  type="password" class="form-control" placeholder="Password" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="input-password" class="col-lg-2 control-label">New Password</label>
+
+        <div class="col-lg-10">
+            <input id="newPassword" name="password"  type="password" class="form-control"  placeholder="Password">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="input-password" class="col-lg-2 control-label">Confirm New Password</label>
+
+        <div class="col-lg-10">
+            <input id="confirmPassword"name="confirmPassword"  type="password" class="form-control"  placeholder="Password">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-lg-offset-2 col-lg-10 wrapper" >
+            <button id= "changeData"  type="submit" class="btn btn-primary" data-loading-text="Sending...">CONFIRM TO CHANGE YOU DATA</button>
+        </div>
+    </div>
+</form>
+<script  type="text/javascript" src="\vendor\bower_components\crypto-js\crypto-js.js"></script>
+
+
+<script>
+    var form = document.loginform;
+    form.onsubmit = sendAuth;
+    //Check Old Password
+    var pass = document.getElementById('oldPassword');
+    var confPass = document.getElementById('confirmPassword');
+    const userHash = (<%-JSON.stringify(data)%>).hashedPassword;
+    const userSalt = (<%-JSON.stringify(data)%>).salt;
+    const oldUsername = (<%-JSON.stringify(data)%>).username;
+    //Check ReWriten newUsername
+    var ckReName = document.getElementById('newUsername');
+    var buffCkName;
+
+    ckReName.onkeyup = function () {
+
+        var ckReNameVal = ckReName.value;
+        var a = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+        var checkN = ckReNameVal.match(a);
+        console.log('checkN: ',checkN);
+        if(checkN) return alert('Don not use special characters in name');
+        //if(checkN){return alert('You passwords contain not valid symbol')};
+        //console.log('ckReName ckReName: ',ckReNameVal,'buffCkName: ',buffCkName,'oldUsername: ',oldUsername);
+        if(ckReNameVal == buffCkName || ckReNameVal == oldUsername || checkN) {
+            ckReName.style.color = '#69bc37';
+        } else {
+            ckReName.style.color = '#ca5b53';
+        }
+    }
+    //HeshPass func
+    function encryptPass(password) {
+        var hash = CryptoJS.HmacSHA1(password,userSalt).toString(CryptoJS.enc.Hex);
+        //console.log('encryptPass hash: ',hash);
+        return  hash;
+    };
+    //Reade and validate input pass
+    pass.onkeyup = function() {
+        var keyLog = pass.value;
+        //console.log('pass keyLog.value: ',keyLog);
+        if(checkHash(userHash,keyLog)) {
+            //console.log('Old Password Confirmed!');
+            pass.style.color = '#69bc37';
+        } else {
+            pass.style.color = '#ca5b53';
+        };
+    };
+    //Reade and validate input confirm pass
+    confPass.onkeyup = function() {
+        var keyLog = confPass.value;
+        var newPassKeyLog = document.getElementById('newPassword');
+        //console.log('confPass keyLog.value: ',keyLog,'newPassKeyLog: ',newPassKeyLog.value);
+        if(keyLog == newPassKeyLog.value) {
+            //console.log('New Password Confirmed!');
+            confPass.style.color = '#69bc37';
+            newPassKeyLog.style.color = '#69bc37';
+        } else {
+            confPass.style.color = '#ca5b53';
+            newPassKeyLog.style.color = '#ca5b53';
+        };
+    };
+    //checkHash
+    var checkHash = function(userHash,pass) {
+        if (userHash == encryptPass(pass)) return true
+        else return false
+    };
+    //Check name availability
+    function checkName() {
+        var newUsername = document.getElementById('newUsername');
+        var newName = newUsername.value;
+        //console.log('newUsername: ',newName);
+        var a = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+        var checkN = newName.match(a);
+        if(checkN) return alert('Don not use special characters in name');
+        if(oldUsername == newName) {return alert('You Old name and new name is equal.')};
+        var data = 'newUsername=' + encodeURIComponent(newName);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/checkName',true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.send(data);
+        xhr.onload = function () {
+            var Obj = JSON.parse(xhr.response);
+            //console.log('newUsername req: ',Obj.user);
+            if (xhr.readyState === xhr.DONE) {
+                if (!Obj.user) {
+                    newUsername.style.color = '#69bc37';
+                    buffCkName = newName;
+                }
+                else {
+                    newUsername.style.color = '#ca5b53';
+                }
+            }
+        };
+        return false;
+    };
+    //Send new user data
+    function sendAuth() {
+
+        var username = document.getElementById('newUsername').value;
+        var password = document.getElementById('newPassword').value;
+        var confPass = document.getElementById('confirmPassword').value;
+        var a = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+        var checkN = username.match(a);
+        if(checkN) return alert('Don not use special characters in name');
+        if(!username) return alert('You forgot type name, try one more.');
+        var oldPassword = pass.value;
+        if(!checkHash(userHash,pass.value))return alert('You Old passwords is not valid.');
+        if (!password || !confPass) return alert('You forgot type passwords, try one more.');
+        if (password != confPass) return alert('Passwords not equal! Change passwords and try one more.');
+        console.log('oldUsername: ',oldUsername,',','newUsername: ',username,',','newPassword: ',password);
+        var data = 'oldUsername='+ encodeURIComponent(oldUsername)
+            + '&username=' + encodeURIComponent(username)
+            +'&password=' + encodeURIComponent(password)
+            +'&oldPassword='+ encodeURIComponent(oldPassword);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/changeUserData',true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.send(data);
+        xhr.onload = function () {
+            if (xhr.readyState === xhr.DONE) {
+                if (xhr.status === 200) {
+                    alert('User data changed successful');
+                    window.location.href = "/chat";
+                }
+                else {
+                    var error = xhr.response.err.message;
+                    window.location.href = "/error".error;
+                }
+            }
+        };
+        return false;
+    }
+
+</script>

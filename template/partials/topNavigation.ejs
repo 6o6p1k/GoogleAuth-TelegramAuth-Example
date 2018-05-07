@@ -1,0 +1,37 @@
+<nav class="navbar navbar-default" role="navigation">
+    <ul class="nav navbar-nav">
+        <li><a href="/">MAIN</a></li>
+        <% if (user) { %>
+        <li>
+            <a href="/chat">CHAT</a>
+        </li>
+        <li>
+            <a href="/userPage">MY PROFILE</a>
+        </li>
+        <% } %>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+        <% if (user) { %>
+        <li>
+            <a href="#" onclick=logOut()>
+                SIGN OUT
+            </a>
+        </li>
+        <% } else { %>
+        <li><a href="/login">SIGN IN</a></li>
+        <% } %>
+    </ul>
+</nav>
+
+<script>
+    function logOut() {
+        var form = document.createElement('form');
+        form.setAttribute('id','submitme');
+        form.method = 'POST';
+        form.action = '/logout';
+        document.body.appendChild(form);
+        form.submit();
+        return false;
+    }
+</script>

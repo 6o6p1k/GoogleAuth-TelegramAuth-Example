@@ -1,0 +1,81 @@
+#room { display: flex; flex-direction: column; }
+#startButton { order: 1; }
+#form { order: 2; }
+#warfilds {  order: 3; margin: 5px}
+#inp { order: 4; }
+
+pre#log{
+	border: 1px solid #ccc;
+	width: 400px;
+
+}
+#notdrag{
+	border: 3px dashed LightBlue;
+	display: table;
+	float: left;
+}
+/* table bot */
+div#notdrag table {
+	width: 350px;
+	height: 350px;
+	border-radius: 10px;
+	background-color: #eee;
+	border-collapse: collapse;
+	margin: 7px;
+}
+/* table cells bot*/
+div#notdrag td{
+	cursor: pointer;
+	border: 3px solid #318DEE;
+	background-color: #66ccff;
+	width: 25px;
+	height: 25px;
+	padding: 3px 3px;
+}
+/* table player*/
+#redips-drag{
+	float: right;
+	border: 3px dashed LightBlue;
+	display: table;
+}
+div#redips-drag  table {
+	width: 350px;
+	height: 350px;
+	border-radius: 10px;
+	background-color: #eee;
+	border-collapse: collapse;
+	margin: 7px;
+}
+#lockDrag {
+	float: right;
+	border: 3px dashed LightBlue;
+	display: table;
+}
+div#lockDrag  table {
+	width: 350px;
+	height: 350px;
+	border-radius: 10px;
+	background-color: #eee;
+	border-collapse: collapse;
+	margin: 7px;
+}
+/* table cells player*/
+.droppable{
+	border: 3px solid #318DEE;
+	background-color: #66ccff;
+	width: 25px;
+	height: 25px;
+	padding: 3px 3px;
+}
+
+/* drag object (DIV inside table cell) */
+.draggable{
+	margin: auto;
+	text-align: center;
+	width: 20px;
+	height: 20px;
+	border: 3px solid #0a00ee;
+	background-color: #44ff37;
+}
+
+

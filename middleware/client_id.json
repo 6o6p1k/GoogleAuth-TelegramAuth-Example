@@ -1,0 +1,11 @@
+{"web":{
+  "client_id":"161470825158-nq6oao1a742lv9eo6i9nopjdce52l538.apps.googleusercontent.com",
+  "project_id":"chatexpmngdbscktiopsprtjs",
+  "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+  "token_uri":"https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+  "client_secret":"YsvE4xjt7BZB2z9Bj9RzTHfc",
+  "redirect_uris":["http://localhost:3000/auth/google/callback"],
+  "javascript_origins":["http://localhost:3000"]
+  }
+}

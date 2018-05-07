@@ -1,0 +1,131 @@
+
+<% layout('./layout/page') -%>
+<% block('title', "CHAT") -%>
+
+<script src="/vendor/bower_components/socket.io-client/dist/socket.io.js"></script>
+
+<div name="chatRoom" id="room">
+<!--    <p style="float: left"><button id="createGame">Create Room</button>
+    <p style="float: right"><button id="startGame">Connect to Room with ID</button>-->
+    <form name="chatRoomForm">
+        <input name="formInp" class="form-control" autocomplete="off" autofocus placeholder="Message...">
+    </form>
+    <ul name="InpUl" class="list-unstyled"></ul>
+</div>
+<!--<script src="/js/clientSocketIO.js"></script>-->
+<script>
+    var form = document.chatRoomForm;
+    var input = document.chatRoomForm.formInp;
+    var ul = document.getElementsByName('InpUl');
+    console.log(form,input,ul);
+
+    function sendMessage() {//transmit
+        var text = input.value;
+        socket.emit('message', text, function() {
+            printMessage("I am> " + text);
+        });
+        input.value = '';
+        return false;
+    }
+    function printStatus(status) {
+        var li = document.createElement('li');
+        li.innerHTML = status;
+        li.style.fontStyle = "italic";
+        ul[0].appendChild(li);
+    }
+    function printMessage(text) {
+        var li = document.createElement('li');
+        li.innerHTML = text;
+        ul[0].appendChild(li);
+    }
+
+    var socket = io.connect('', {
+        reconnect: false
+    });
+
+    socket
+        .on('message', function(username, message) {//receiver
+            printMessage(username + "> " + message);
+        })
+        .on('log', function(message) {//receiver log
+            console.log('receiver log', message);
+            var stopLet = 0;
+            for (var i=0;i<message.length;i++) {
+                if (message[i] == '\r') {
+                    var newLine = message.slice(stopLet,i);
+                    stopLet = i+1;
+                    printMessage(newLine);
+                }
+            }
+            //printMessage(message);
+        })
+        .on('leave', function(username) {
+            printStatus(username + " left the chat.");
+        })
+        .on('join', function(username) {
+            printStatus(username + " entered the chat.");
+        })
+        .on('connect', function() {
+            printStatus("connection established");
+            form.disabled = false;
+            form.onsubmit = sendMessage;
+            input.disabled = false;
+        })
+        .on('disconnect', function() {
+            printStatus("connection lost");
+            form.disabled = true;
+            input.disabled = true;
+        })
+        .on('logout', function() {
+            location.href = "/";
+        })
+        .on('error', function(reason) {
+            if (reason == "handshake unauthorized") {
+                printStatus("you are leave chat");
+            } else {
+                setTimeout(function() {
+                    socket.socket.connect();
+                }, 500);
+            }
+        });
+    var createGame = document.getElementById('createGame');
+    createGame.onclick = function () {
+        socket.emit('createNewRoom',function (id) {
+            console.log(id);
+            printMessage('New room created, id is: '+id);
+        });
+
+    };
+    var roomChat;
+    var startGame = document.getElementById('startGame');
+    startGame.onclick = function () {
+        var f = document.createElement("form");
+        f.setAttribute('id',"formID");
+        var i = document.createElement("input"); //input element, text
+        i.setAttribute('type',"text");
+        i.setAttribute('class',"form-control");
+        i.setAttribute('placeholder',"imput you ID...");
+        i.setAttribute('id',"idInput");
+        f.appendChild(i);
+        document.getElementById('room').appendChild(f);
+        var x = document.getElementById('idInput');
+        x.addEventListener('keydown', function(e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                e = e.target.value;
+                roomChat = e;
+                console.log(e);
+                location.href = "/game/"+e;
+            }
+        });
+    };
+
+</script>
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+{
+  "port": 3001,
+  "GoogleClientData": {
+    "clientID": "xxx" ,
+    "clientSecret": "xxx",
+    "callbackURL": "xxx"
+  },
+  "telegramToken":"xxx",
+  "mongoose": {
+    "url": "mongodb://localhost/EMPS",
+    "options": {
+      "server": {
+        "socketOptions": {
+          "keepAlive": 1
+        }
+      }
+    }
+  },
+  "session": {
+    "secret": "FackYouSpielbirg",
+    "resave": true,
+    "saveUninitialized": true,
+    "key": "sid",
+    "cookie": {
+      "path": "/",
+      "httpOnly": true,
+      "maxAge": null
+    }
+  }
+}
+
